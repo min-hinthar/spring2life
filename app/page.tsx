@@ -15,7 +15,7 @@ export default function Home() {
             width={10000}
             height={10000}
             alt="logo"
-            className="mb-12 h-20 w-fit rounded-3xl shadow-green-900 shadow-md"
+            className="mb-12 h-20 w-fit rounded-3xl shadow-green-900 shadow-md transition-transform duration-300 ease-in-out transform hover:scale-110"
           />
 
           <PatientForm/>
@@ -25,7 +25,7 @@ export default function Home() {
               © 2025 Spring2Life
             </p>
 
-            <Link href="/admin=true" className="text-green-500">
+            <Link href="/admin=true" className="text-green-500 transition-transform duration-300 ease-in-out transform hover:scale-110">
               Admin
             </Link>
           </div>
