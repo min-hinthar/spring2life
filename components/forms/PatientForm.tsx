@@ -50,15 +50,33 @@ const PatientForm = () => {
             – Buddha 🙏🏽
           </p>
         </section>
-
+{/* FULL NAME */}
         <CustomFormField
           fieldType={FormFieldType.INPUT}
           control={form.control}
           name="name"
           label="Full Name"
-          placeholder="Enter your full name"
+          placeholder="Nway Oo"
           iconSrc="/assets/icons/user.svg"
           iconAlt="user"
+        />
+{/* EMAIL */}
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="email"
+          label="Email"
+          placeholder="nwayoo@spring2life.com"
+          iconSrc="/assets/icons/email.svg"
+          iconAlt="email"
+        />
+{/* PHONE */}
+        <CustomFormField
+          fieldType={FormFieldType.PHONE_INPUT}
+          control={form.control}
+          name="phone"
+          label="Phone Number"
+          placeholder="(323)509-123"
         />
 
         <Button type="submit">Submit</Button>
