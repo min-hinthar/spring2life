@@ -1,7 +1,15 @@
 'use server'
 
 
-import { AppwriteException, Client, Storage, Databases, ID, Query, InputFile } from "node-appwrite";
+import {
+  AppwriteException,
+  Client,
+  Storage,
+  Databases,
+  ID,
+  Query,
+} from "node-appwrite";
+import { InputFile } from "node-appwrite/inputFile";
 import { API_KEY, BUCKET_ID, DATABASE_ID, ENDPOINT, PATIENT_COLLECTION_ID, PROJECT_ID, users } from "../appwrite.config"
 import { parseStringify } from "../utils";
 
