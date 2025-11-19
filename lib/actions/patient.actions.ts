@@ -71,6 +71,7 @@ export const registerPatient = async ({ identificationDocument, ...patient }: Re
       if (blob && fileName) {
         const arrayBuffer = await blob.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
+        const inputFile = InputFile.fromBuffer(buffer, fileName);
 
         file = await storage.createFile(
           BUCKET_ID!,
