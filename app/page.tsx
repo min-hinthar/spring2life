@@ -25,7 +25,7 @@ export default function Home() {
               © 2025 Spring2Life
             </p>
 
-            <Link href="/admin=true" className="text-green-500 transition-transform duration-300 ease-in-out transform hover:scale-110">
+            <Link href="/admin" className="text-green-500 transition-transform duration-300 ease-in-out transform hover:scale-110">
               Admin
             </Link>
           </div>
