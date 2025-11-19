@@ -9,7 +9,6 @@ import {
   ID,
   Query,
 } from "node-appwrite";
-import { InputFile } from "node-appwrite/inputFile";
 import { API_KEY, BUCKET_ID, DATABASE_ID, ENDPOINT, PATIENT_COLLECTION_ID, PROJECT_ID, users } from "../appwrite.config"
 import { parseStringify } from "../utils";
 
@@ -77,7 +76,8 @@ export const registerPatient = async ({ identificationDocument, ...patient }: Re
         file = await storage.createFile(
           BUCKET_ID!,
           ID.unique(),
-          inputFile,
+          buffer,
+          fileName,
         );
       }
     }
