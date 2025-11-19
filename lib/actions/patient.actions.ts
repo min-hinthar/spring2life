@@ -1,7 +1,14 @@
 'use server'
 
 
-import { Client, Storage, Databases, ID, Query } from "node-appwrite";
+import {
+  AppwriteException,
+  Client,
+  Storage,
+  Databases,
+  ID,
+  Query,
+} from "node-appwrite";
 import { API_KEY, BUCKET_ID, DATABASE_ID, ENDPOINT, PATIENT_COLLECTION_ID, PROJECT_ID, users } from "../appwrite.config"
 import { parseStringify } from "../utils";
 
@@ -26,9 +33,8 @@ export const createUser = async (user: CreateUserParams) => {
     );
 
     return parseStringify(newuser);
-  } catch (error: any) {
-    // Check existing user
-    if (error && error?.code === 409) {
+  } catch (error) {
+    if (error instanceof AppwriteException && error.code === 409) {
       const existingUser = await users.list([
         Query.equal("email", [user.email]),
       ]);
@@ -54,13 +60,13 @@ export const getUser = async (userId: string) => {
 };
 
 // REGISTER PATIENT
-export const registerPatient = async ({ identificationDocument, ...patient }: { identificationDocument?: FormData }) => {
+export const registerPatient = async ({ identificationDocument, ...patient }: RegisterUserParams) => {
   try {
     let file;
 
     if (identificationDocument) {
-      const blob = identificationDocument.blobFile as Blob;
-      const fileName = identificationDocument.fileName as string;
+      const blob = identificationDocument.get('blobFile') as Blob;
+      const fileName = identificationDocument.get('fileName') as string;
 
       if (blob && fileName) {
         const arrayBuffer = await blob.arrayBuffer();
@@ -70,10 +76,18 @@ export const registerPatient = async ({ identificationDocument, ...patient }: { 
           BUCKET_ID!,
           ID.unique(),
           buffer,
-          fileName
+          fileName,
         );
       }
     }
+
+    const patientPayload = {
+      ...patient,
+      birthDate:
+        patient.birthDate instanceof Date
+          ? patient.birthDate.toISOString()
+          : patient.birthDate,
+    };
 
     const newPatient = await databases.createDocument(
       DATABASE_ID!,
@@ -84,7 +98,7 @@ export const registerPatient = async ({ identificationDocument, ...patient }: { 
         identificationDocumentUrl: file
           ? `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file.$id}/view?project=${PROJECT_ID}`
           : null,
-        ...patient,
+        ...patientPayload,
       }
     );
 
@@ -92,6 +106,20 @@ export const registerPatient = async ({ identificationDocument, ...patient }: { 
   } catch (error) {
     console.error("Error registering patient:", error);
     throw error;
+  }
+};
+
+export const getPatientById = async (patientId: string) => {
+  try {
+    const patient = await databases.getDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      patientId
+    );
+
+    return parseStringify(patient);
+  } catch (error) {
+    console.error("An error occurred while retrieving the patient by id:", error);
   }
 };
 
