@@ -12,6 +12,14 @@ export const CommunicationPreferences = [
   "Email",
 ]
 
+export const LanguagePreferences = [
+  "English",
+  "Burmese",
+  "Shan",
+  "Karen",
+  "Mon",
+]
+
 export const SessionTypes = [
   "Individual Therapy",
   "Group Processing",
@@ -65,6 +73,8 @@ export const PatientRegistrationDefaults = {
   birthDate: new Date(Date.now()),
   gender: GenderOptions[0],
   supportNeeds: "",
+  personalStory: "",
+  preferredLanguage: LanguagePreferences[0],
   emergencyContactName: "",
   emergencyContactPhone: "",
   preferredCommunication: CommunicationPreferences[0],

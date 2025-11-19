@@ -56,6 +56,24 @@ export const getDashboardAppointments = async () => {
   return { appointments, stats }
 }
 
+export const getAppointmentsForUser = async (email: string) => {
+  const patient = await getPatientByEmail(email)
+
+  if (!patient) return []
+
+  const appointments = await supabaseRequest<AppointmentRecord[]>({
+    path: APPOINTMENTS_TABLE,
+    query: {
+      select: "*,patients(*)",
+      patient_id: `eq.${patient.id}`,
+      order: "scheduled_at.asc",
+      limit: "20",
+    },
+  })
+
+  return appointments
+}
+
 export const updateAppointmentStatus = async ({
   appointmentId,
   status,

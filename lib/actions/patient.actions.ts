@@ -15,6 +15,8 @@ export const registerPatientProfile = async (payload: PatientRegistrationInput) 
     birth_date: payload.birthDate.toISOString(),
     gender: payload.gender,
     support_needs: payload.supportNeeds,
+    personal_story: payload.personalStory,
+    preferred_language: payload.preferredLanguage,
     emergency_contact_name: payload.emergencyContactName,
     emergency_contact_phone: payload.emergencyContactPhone,
     preferred_communication: payload.preferredCommunication,

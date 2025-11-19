@@ -13,6 +13,11 @@ export const PatientRegistrationSchema = z.object({
     .string()
     .min(10, "Tell us how we can support you best")
     .max(600, "Keep support notes under 600 characters"),
+  personalStory: z
+    .string()
+    .min(20, "Share a short version of your story so we can match you well")
+    .max(800, "Keep your story under 800 characters"),
+  preferredLanguage: z.string().min(2, "Select a preferred language"),
   emergencyContactName: z.string().min(2, "Emergency contact name is required"),
   emergencyContactPhone: z
     .string()

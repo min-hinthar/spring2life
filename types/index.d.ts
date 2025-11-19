@@ -13,6 +13,8 @@ declare interface PatientRegistrationInput {
     birthDate: Date;
     gender: Gender;
     supportNeeds: string;
+    personalStory: string;
+    preferredLanguage: string;
     emergencyContactName: string;
     emergencyContactPhone: string;
     preferredCommunication: string;

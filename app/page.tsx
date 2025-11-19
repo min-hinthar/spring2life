@@ -23,6 +23,20 @@ const Home = () => {
               <p className="text-lg text-white/70">
                 Patients register once, book multiple therapy or psychiatry sessions, and coordinators confirm everything from a modern dashboard.
               </p>
+              <div className="flex flex-wrap gap-3 text-sm">
+                <Link
+                  href="/auth"
+                  className="rounded-full bg-green-500 px-5 py-3 font-semibold text-[#0a1020] shadow-xl transition hover:-translate-y-[1px]"
+                >
+                  Sign in / Sign up
+                </Link>
+                <Link
+                  href="/providers"
+                  className="rounded-full border border-white/15 px-5 py-3 text-white transition hover:border-green-300"
+                >
+                  View provider directory
+                </Link>
+              </div>
             </div>
             <div className="grid gap-6 sm:grid-cols-3">
               {["24/7 booking", "Admin dashboard", "Supabase schemas"].map((label) => (

@@ -7,6 +7,8 @@ export type PatientRecord = {
   birth_date: string | null
   gender: string | null
   support_needs: string | null
+  personal_story?: string | null
+  preferred_language?: string | null
   emergency_contact_name: string | null
   emergency_contact_phone: string | null
   preferred_communication: string | null
@@ -27,6 +29,29 @@ export type AppointmentRecord = {
   note: string | null
   cancellation_reason: string | null
   patients?: PatientRecord
+}
+
+export type ProviderRecord = {
+  id: string
+  created_at: string
+  full_name: string
+  specialty: string
+  modalities: string[]
+  bio: string
+  accepts_new_clients: boolean
+  seniority: number
+  virtual_only: boolean
+  credentials: string
+}
+
+export type ProfileRecord = {
+  id: string
+  created_at: string
+  email: string
+  full_name: string
+  role: string
+  provider_id?: string | null
+  patient_id?: string | null
 }
 
 export type DashboardStats = {

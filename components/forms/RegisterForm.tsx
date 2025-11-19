@@ -6,7 +6,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { PatientRegistrationSchema } from "@/lib/validation"
-import { CommunicationPreferences, GenderOptions, PatientRegistrationDefaults } from "@/constants"
+import { CommunicationPreferences, GenderOptions, LanguagePreferences, PatientRegistrationDefaults } from "@/constants"
 import { Form } from "@/components/ui/form"
 import CustomFormField from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
@@ -122,6 +122,14 @@ const RegisterForm = () => {
           placeholder="Tell us about your mental health goals, triggers, or accessibility needs"
         />
 
+        <CustomFormField
+          fieldType={FormFieldType.TEXTAREA}
+          control={form.control}
+          name="personalStory"
+          label="Share your story"
+          placeholder="Share the context that helps us honor your lived experience"
+        />
+
         <div className="flex flex-col gap-4 md:flex-row">
           <CustomFormField
             fieldType={FormFieldType.INPUT}
@@ -150,6 +158,19 @@ const RegisterForm = () => {
             {CommunicationPreferences.map((mode) => (
               <SelectItem key={mode} value={mode}>
                 {mode}
+              </SelectItem>
+            ))}
+          </CustomFormField>
+          <CustomFormField
+            fieldType={FormFieldType.SELECT}
+            control={form.control}
+            name="preferredLanguage"
+            label="Preferred language"
+            placeholder="Select language"
+          >
+            {LanguagePreferences.map((language) => (
+              <SelectItem key={language} value={language}>
+                {language}
               </SelectItem>
             ))}
           </CustomFormField>

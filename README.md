@@ -1,21 +1,23 @@
 # Spring2Life
 
-Spring2Life is a colorful, mobile-responsive mental health appointment platform built with Next.js 15, TypeScript, Tailwind CSS, and Supabra (Supabase). Patients can create rich profiles, request multiple therapy or psychiatry sessions, and administrators can confirm, cancel, or reschedule every request from an interactive dashboard.
+Spring2Life is a colorful, mobile-responsive mental health appointment platform built with Next.js 15, TypeScript, Tailwind CSS, and Supabra (Supabase). Patients can create rich profiles, request multiple therapy or psychiatry sessions, and administrators can confirm, cancel, or reschedule every request from an interactive dashboard. Auth is powered by Supabase with password + Google OAuth, and protected routes keep patient, provider, and admin surfaces separate.
 
 ## 🌟 Features
 
-- **Patient registration** – Intake form captures support needs, preferred communication channels, and emergency contacts in Supabase `patients` table.
+- **Landing + auth** – `/auth` collects sign-in/sign-up (password and Google OAuth) and routes people to the right workspace with protected navigation.
+- **Patient registration** – Intake form captures support needs, personal stories, preferred languages, communication channels, and emergency contacts in Supabase `patients` table.
+- **Provider directory** – `/providers` lists psychiatrists and therapists with modalities, credentials, and availability for matching.
 - **Appointment booking** – Patients can request multiple sessions, specify focus areas, and leave notes that flow directly into Supabase `appointments` table.
 - **Admin dashboard** – Live overview with stats plus inline controls to confirm, cancel, or reschedule requests. Updates revalidate the data instantly.
 - **Modern UI/UX** – Gradient-heavy layout, responsive cards, and animated controls designed for mobile-first experiences.
-- **Supabase powered** – Single source of truth for profile + appointment data, ready for automation, triggers, or edge functions.
+- **Supabase powered** – Single source of truth for profiles, appointments, and roles (`profiles` table) ready for automation, webhooks, or edge functions.
 
 ## 🧱 Tech Stack
 
 - [Next.js 15](https://nextjs.org/) with the App Router
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
-- [Supabase REST API](https://supabase.com/) for data persistence
+- [Supabase REST API](https://supabase.com/) for data persistence and auth
 - [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) for form handling
 
 ## ⚙️ Getting Started
@@ -39,10 +41,12 @@ Fill in your Supabase project details:
 - `NEXT_PUBLIC_SUPABASE_URL` – Supabase project URL (`https://YOUR-PROJECT.supabase.co`)
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` – anon/public key for client rendering
 - `SUPABASE_SERVICE_ROLE_KEY` – service role key (used only on the server for admin actions)
+- `NEXT_PUBLIC_SITE_URL` – the URL Supabase should redirect back to after Google OAuth
+- `ADMIN_EMAILS` – comma-separated list of admin emails to align with the seeded `profiles` rows
 
 3. **Provision the database**
 
-Run the SQL inside `supabase/schema.sql` in your Supabase SQL editor to create the `patients` and `appointments` tables with the required columns.
+Run the SQL inside `supabase/schema.sql` in your Supabase SQL editor to create the `patients`, `appointments`, `providers`, and `profiles` tables with the required columns plus starter data for testing (admin + patient + provider profiles, sample appointments, and directory entries).
 
 4. **Start the dev server**
 
@@ -50,7 +54,7 @@ Run the SQL inside `supabase/schema.sql` in your Supabase SQL editor to create t
 npm run dev
 ```
 
-Visit `http://localhost:3000` to explore the patient flows and `http://localhost:3000/admin` for the dashboard.
+Visit `http://localhost:3000` to explore the patient flows, `http://localhost:3000/auth` to sign in, `http://localhost:3000/dashboard` for the patient portal, and `http://localhost:3000/admin` for the coordinator dashboard.
 
 ## 🗂️ Project Structure
 
