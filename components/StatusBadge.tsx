@@ -3,7 +3,8 @@ import { StatusIcon } from "@/constants"
 
 const statusStyles: Record<Status, string> = {
   pending: "bg-yellow-500/10 text-yellow-200",
-  scheduled: "bg-green-500/10 text-green-200",
+  confirmed: "bg-green-500/10 text-green-200",
+  rescheduled: "bg-sky-500/10 text-sky-200",
   cancelled: "bg-red-500/10 text-red-200",
 }
 

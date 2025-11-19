@@ -1,47 +1,35 @@
-import AppointmentCard from "@/components/cards/AppointmentCard"
-import { getRecentAppointments } from "@/lib/actions/appointment.actions"
-import { Appointment } from "@/types/appwrite.types"
-import Image from "next/image"
+import { getDashboardAppointments } from "@/lib/actions/appointment.actions"
+import { AppointmentRecord, DashboardStats } from "@/types/database"
+import AdminAppointmentsTable from "@/components/cards/AdminAppointmentsTable"
 
 const AdminPage = async () => {
-  const appointments = await getRecentAppointments()
+  const { appointments, stats } = await getDashboardAppointments()
 
   return (
-    <div className="flex min-h-screen">
-      <section className="remove-scrollbar container my-auto">
-        <div className="sub-container space-y-10">
-          <header className="space-y-2">
-            <p className="text-14-regular text-dark-600 uppercase tracking-wide">
-              Admin Control Center
-            </p>
-            <h1 className="header">Appointments overview</h1>
-            <p className="text-dark-700">
-              Track patient requests, upcoming visits, and confirmations in real time.
-            </p>
-          </header>
+    <main className="min-h-screen bg-[#030712] text-white">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12 lg:px-12">
+        <header className="flex flex-col gap-4">
+          <p className="text-sm uppercase tracking-[0.3em] text-green-200">Admin control room</p>
+          <h1 className="text-4xl font-semibold">Confirm, cancel, or reschedule every mental health appointment.</h1>
+          <p className="text-white/70">
+            This dashboard pulls data directly from Supabase tables so every update is instantly reflected for coordinators, therapists, and patients.
+          </p>
+        </header>
 
-          <div className="space-y-6">
-            {appointments && appointments.length > 0 ? (
-              appointments.map((appointment: Appointment) => (
-                <AppointmentCard key={appointment.$id} appointment={appointment} />
-              ))
-            ) : (
-              <div className="rounded-2xl border border-dark-400 bg-dark-200 p-8 text-center text-dark-600">
-                No appointments yet. Encourage patients to request care from the home page.
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+        <section className="grid gap-6 md:grid-cols-4">
+          {Object.entries(stats as DashboardStats).map(([key, value]) => (
+            <div key={key} className="rounded-3xl border border-white/10 bg-white/5 p-4 text-center">
+              <p className="text-sm uppercase tracking-widest text-white/70">{key}</p>
+              <p className="mt-2 text-3xl font-semibold">{value}</p>
+            </div>
+          ))}
+        </section>
 
-      <Image
-        src="/assets/images/admin.png"
-        width={1000}
-        height={1000}
-        alt="admin"
-        className="side-img max-w-[45%]"
-      />
-    </div>
+        <section className="rounded-3xl border border-white/10 bg-[#0a1020]/90 p-6 shadow-2xl">
+          <AdminAppointmentsTable appointments={appointments as AppointmentRecord[]} />
+        </section>
+      </div>
+    </main>
   )
 }
 

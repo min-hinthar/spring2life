@@ -1,85 +1,120 @@
-export const GenderOptions = ["Male", "Female", "Other"];
+export const GenderOptions: Gender[] = [
+  "Female",
+  "Male",
+  "Non-binary",
+  "Prefer not to say",
+]
 
-export const PatientFormDefaultValues = {
-  name: "",
-  email: "",
-  phone: "",
-  birthDate: new Date(Date.now()),
-  gender: "Male" as Gender,
-  address: "",
-  occupation: "",
-  emergencyContactName: "",
-  emergencyContactNumber: "",
-  primaryPhysician: "",
-  insuranceProvider: "",
-  insurancePolicyNumber: "",
-  allergies: "",
-  currentMedication: "",
-  familyMedicalHistory: "",
-  pastMedicalHistory: "",
-  identificationType: "Birth Certificate",
-  identificationNumber: "",
-  identificationDocument: [] as File[],
-  treatmentConsent: false,
-  disclosureConsent: false,
-  privacyConsent: false,
-};
+export const CommunicationPreferences = [
+  "Phone call",
+  "SMS text",
+  "WhatsApp",
+  "Email",
+]
 
-export const IdentificationTypes = [
-  "Birth Certificate",
-  "Driver's License",
-  "Medical Insurance Card/Policy",
-  "Military ID Card",
-  "National Identity Card",
-  "Passport",
-  "Resident Alien Card (Green Card)",
-  "Social Security Card",
-  "State ID Card",
-  "Student ID Card",
-  "Voter ID Card",
-];
+export const SessionTypes = [
+  "Individual Therapy",
+  "Group Processing",
+  "Family Session",
+  "Crisis Intervention",
+]
 
-export const Doctors = [
+export const FocusAreas = [
+  "Anxiety & grounding",
+  "Depression recovery",
+  "PTSD processing",
+  "Career counseling",
+  "Family systems",
+  "Trauma-informed yoga",
+]
+
+export const ProviderSpecialties = [
+  "Trauma therapist",
+  "Psychiatrist",
+  "Mindfulness coach",
+  "Peer supporter",
+]
+
+export const CareTeam = [
   {
     image: "/assets/images/dr-green.png",
-    name: "Phyo Wai",
+    name: "Dr. Lar Khine",
+    specialty: "Trauma therapist",
   },
   {
     image: "/assets/images/dr-cameron.png",
-    name: "Nway Oo",
+    name: "Dr. Maya Lwin",
+    specialty: "Psychiatrist",
   },
   {
     image: "/assets/images/dr-livingston.png",
-    name: "Lin Lat",
+    name: "Ko Htet",
+    specialty: "Mindfulness coach",
   },
   {
     image: "/assets/images/dr-peter.png",
-    name: "Htet Nay",
+    name: "Daw Sar Yu",
+    specialty: "Peer supporter",
   },
-  {
-    image: "/assets/images/dr-powell.png",
-    name: "Myat Noe",
-  },
-  {
-    image: "/assets/images/dr-remirez.png",
-    name: "Zarni Kaung",
-  },
-  {
-    image: "/assets/images/dr-lee.png",
-    name: "Kyal Sin",
-  },
-  {
-    image: "/assets/images/dr-cruz.png",
-    name: "Min Maw Kon",
-  },
-  {
-    image: "/assets/images/dr-sharma.png",
-    name: "Mohammad Myo",
-  },
-];
+]
 
-export const StatusIcon = {
-  scheduled: "/assets/icons/check.svg",
+export const PatientRegistrationDefaults = {
+  fullName: "",
+  email: "",
+  phone: "",
+  birthDate: new Date(Date.now()),
+  gender: GenderOptions[0],
+  supportNeeds: "",
+  emergencyContactName: "",
+  emergencyContactPhone: "",
+  preferredCommunication: CommunicationPreferences[0],
+  careTeamNotes: "",
+}
+
+export const StatusIcon: Record<Status, string> = {
   pending: "/assets/icons/pending.svg",
+  confirmed: "/assets/icons/check.svg",
   cancelled: "/assets/icons/cancelled.svg",
-};
+  rescheduled: "/assets/icons/calendar.svg",
+}
+
+export const FeatureHighlights = [
+  {
+    title: "Care coordination",
+    description:
+      "One dashboard to review every request, approve care plans, and keep families informed in real time.",
+  },
+  {
+    title: "Personalized therapy",
+    description:
+      "Patients register once and build a living profile with support preferences, trusted contacts, and notes for the care team.",
+  },
+  {
+    title: "Appointment autopilot",
+    description:
+      "Supabase triggers keep requests, confirmations, and cancellations perfectly in sync across devices.",
+  },
+]
+
+export const JourneySteps = [
+  {
+    label: "1",
+    title: "Register",
+    body: "Patients craft a profile that highlights their story, emergency contacts, and preferred communication style.",
+  },
+  {
+    label: "2",
+    title: "Book",
+    body: "Match with therapists and psychiatrists, select the session style, and reserve multiple dates instantly.",
+  },
+  {
+    label: "3",
+    title: "Review",
+    body: "The admin portal surfaces every new request so coordinators can confirm, reschedule, or cancel with context.",
+  },
+  {
+    label: "4",
+    title: "Care",
+    body: "Everyone receives proactive reminders and updates thanks to Supabase webhooks and automation-ready data.",
+  },
+]
