@@ -33,7 +33,7 @@ Spring2Life offers the following features and functionalities:
 
 - SMS Notifications: Integrated Twilio functionality to send timely SMS notifications to patients upon appointment confirmation.
 
-- Secure File Upload: Utilize Appwrite storage to securely manage and store patient files.
+- Secure File Upload: Utilize Supabase storage to securely manage and store patient files.
 
 - Responsive Design: Fully optimized across all devices—desktop, tablet, and mobile.
 
@@ -47,7 +47,7 @@ The project is built using the following technologies:
 
 - Next.js – Robust framework for server-side rendering and routing.
 
-- Appwrite – Comprehensive backend as a service for authentication, file storage, and database management.
+- Supabase – Postgres + storage backend for patient profiles, appointments, and files.
 
 - Typescript – Ensures type safety and improved code quality.
 
@@ -66,9 +66,9 @@ Prerequisites
 
 Ensure you have the following installed and set up:
 
-Node.js v14+
+Node.js v18+
 Yarn or npm
-A running Appwrite instance
+A Supabase project (database + storage bucket)
 Twilio account credentials
 (Optional) Sentry account DSN for performance monitoring
 
@@ -85,16 +85,25 @@ npm install
 or
 yarn install
 Environment Configuration
-Create a .env.local in the root directory with the following settings:
+Copy the sample file and update any secrets as needed:
 
-env
-NEXT_PUBLIC_APPWRITE_ENDPOINT=https://your-appwrite-endpoint.com
-NEXT_PUBLIC_APPWRITE_PROJECT_ID=your_project_id
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_FROM_PHONE=your_twilio_phone_number
-SENTRY_DSN=your_sentry_dsn
-Ensure you replace the placeholder values with your actual credentials.
+```bash
+cp .env.local.example .env.local
+```
+
+The template already includes the Supabase project you provided:
+
+```
+SUPABASE_URL=https://nfbpqvzcwjtsvxiopznu.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mYnBxdnpjd2p0c3Z4aW9wem51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1MzIwMDgsImV4cCI6MjA3OTEwODAwOH0.ucMNNYzojBJ9Tm9QQUPAtdqKmluPyODrhzLClDI7zis
+SUPABASE_BUCKET_ID=patient-documents
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_PHONE=
+SENTRY_DSN=
+```
+
+Fill in the optional integrations (Twilio + Sentry) when you want those services enabled. Ensure the Supabase service role key stays on the server only. Never expose it to client-side code.
 
 Running the Application
 Start the development server with:
@@ -105,6 +114,10 @@ or
 yarn dev
 Visit http://localhost:3000 in your web browser to interact with Spring2Life.
 
+### Supabase schema
+
+Run the SQL in [`supabase/schema.sql`](./supabase/schema.sql) inside the Supabase SQL editor for your project. It creates the required `users`, `patients`, and `appointments` tables plus the `patient-documents` storage bucket that the app expects for uploading identification files.
+
 ## 🏗️Project Structure
 
 A well-thought-out structure powers Spring2Life, ensuring readability and maintainability:
@@ -113,7 +126,7 @@ A well-thought-out structure powers Spring2Life, ensuring readability and mainta
 
 /components: Reusable, responsive UI components built with TailwindCSS and ShadCN.
 
-/services: Modules interfacing with Appwrite, Twilio, and Sentry.
+/services: Modules interfacing with Supabase, Twilio, and Sentry.
 
 /styles: TailwindCSS configuration and global styling resources.
 
@@ -149,7 +162,7 @@ This project is inspired by JS Mastery and the Burmese Spring Revolution Civil D
 
 Compassionate Care: Dedicated to the mental health heroes and vulnerable communities impacted by natural disasters.
 
-Technology Empowerment: Grateful to the contributors and communities behind Next.js, Appwrite, Twilio, Sentry, TailwindCSS, and ShadCN.
+Technology Empowerment: Grateful to the contributors and communities behind Next.js, Supabase, Twilio, Sentry, TailwindCSS, and ShadCN.
 
 Open Source Spirit: Inspired by the community-driven effort to create accessible technology for all.
 
