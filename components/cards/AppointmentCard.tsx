@@ -1,6 +1,6 @@
 import { formatDateTime } from "@/lib/utils"
 import StatusBadge from "../StatusBadge"
-import { Appointment } from "@/types/database"
+import { Appointment } from "@/types/appwrite.types"
 
 interface AppointmentCardProps {
   appointment: Appointment

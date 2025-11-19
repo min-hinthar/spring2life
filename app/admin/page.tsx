@@ -1,6 +1,6 @@
 import AppointmentCard from "@/components/cards/AppointmentCard"
 import { getRecentAppointments } from "@/lib/actions/appointment.actions"
-import { Appointment } from "@/types/database"
+import { Appointment } from "@/types/appwrite.types"
 import Image from "next/image"
 
 const AdminPage = async () => {
@@ -23,7 +23,7 @@ const AdminPage = async () => {
           <div className="space-y-6">
             {appointments && appointments.length > 0 ? (
               appointments.map((appointment: Appointment) => (
-                <AppointmentCard key={appointment.id} appointment={appointment} />
+                <AppointmentCard key={appointment.$id} appointment={appointment} />
               ))
             ) : (
               <div className="rounded-2xl border border-dark-400 bg-dark-200 p-8 text-center text-dark-600">

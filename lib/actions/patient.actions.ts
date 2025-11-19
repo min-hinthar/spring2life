@@ -3,9 +3,22 @@
 import { randomUUID } from "node:crypto"
 import { Buffer } from "node:buffer"
 
+<<<<<<< HEAD
 import { getPublicFileUrl, insertRow, selectRows, SupabaseError, uploadToStorage } from "../supabase"
 import { parseStringify } from "../utils"
 import { Patient } from "@/types/database"
+=======
+import {
+  AppwriteException,
+  Client,
+  Storage,
+  Databases,
+  ID,
+  Query,
+} from "node-appwrite";
+import { API_KEY, BUCKET_ID, DATABASE_ID, ENDPOINT, PATIENT_COLLECTION_ID, PROJECT_ID, users } from "../appwrite.config"
+import { parseStringify } from "../utils";
+>>>>>>> registration
 
 const { SUPABASE_BUCKET_ID } = process.env
 
@@ -105,7 +118,18 @@ export const createUser = async (user: CreateUserParams) => {
         limit: "1",
       })
 
+<<<<<<< HEAD
       return parseStringify(mapUser(existing?.[0] ?? null))
+=======
+    return parseStringify(newuser);
+  } catch (error) {
+    if (error instanceof AppwriteException && error.code === 409) {
+      const existingUser = await users.list([
+        Query.equal("email", [user.email]),
+      ]);
+
+      return existingUser.users[0];
+>>>>>>> registration
     }
 
     console.error("An error occurred while creating a new user:", error)
@@ -127,12 +151,17 @@ export const getUser = async (userId: string) => {
   }
 }
 
+<<<<<<< HEAD
+=======
+// REGISTER PATIENT
+>>>>>>> registration
 export const registerPatient = async ({ identificationDocument, ...patient }: RegisterUserParams) => {
   try {
     let documentPath: string | null = null
     let documentUrl: string | null = null
 
     if (identificationDocument) {
+<<<<<<< HEAD
       const blob = identificationDocument.get("blobFile") as Blob | null
       const fileName = identificationDocument.get("fileName") as string | null
 
@@ -151,6 +180,45 @@ export const registerPatient = async ({ identificationDocument, ...patient }: Re
       patient.birthDate instanceof Date
         ? patient.birthDate.toISOString().split("T")[0]
         : new Date(patient.birthDate).toISOString().split("T")[0]
+=======
+      const blob = identificationDocument.get('blobFile') as Blob;
+      const fileName = identificationDocument.get('fileName') as string;
+
+      if (blob && fileName) {
+        const arrayBuffer = await blob.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const inputFile = InputFile.fromBuffer(buffer, fileName);
+
+        file = await storage.createFile(
+          BUCKET_ID!,
+          ID.unique(),
+          buffer,
+          fileName,
+        );
+      }
+    }
+
+    const patientPayload = {
+      ...patient,
+      birthDate:
+        patient.birthDate instanceof Date
+          ? patient.birthDate.toISOString()
+          : patient.birthDate,
+    };
+
+    const newPatient = await databases.createDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      ID.unique(),
+      {
+        identificationDocumentId: file?.$id ?? null,
+        identificationDocumentUrl: file
+          ? `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file.$id}/view?project=${PROJECT_ID}`
+          : null,
+        ...patientPayload,
+      }
+    );
+>>>>>>> registration
 
     const payload = {
       user_id: patient.userId,
@@ -201,6 +269,24 @@ export const getPatientById = async (patientId: string) => {
   }
 }
 
+<<<<<<< HEAD
+=======
+export const getPatientById = async (patientId: string) => {
+  try {
+    const patient = await databases.getDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      patientId
+    );
+
+    return parseStringify(patient);
+  } catch (error) {
+    console.error("An error occurred while retrieving the patient by id:", error);
+  }
+};
+
+// GET PATIENT
+>>>>>>> registration
 export const getPatient = async (userId: string) => {
   try {
     const patients = await selectRows<PatientRow>("patients", {
