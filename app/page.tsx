@@ -1,157 +1,188 @@
-import Image from "next/image"
 import Link from "next/link"
+import { CalendarClock, CheckCircle2, Lock, ShieldCheck, Sparkles } from "lucide-react"
 
-import RegisterForm from "@/components/forms/RegisterForm"
 import AppointmentForm from "@/components/forms/AppointmentForm"
-import { CareTeam, FeatureHighlights, JourneySteps } from "@/constants"
-import AppointmentCard from "@/components/cards/AppointmentCard"
+import AuthForm from "@/components/forms/AuthForm"
+import RegisterForm from "@/components/forms/RegisterForm"
+import { getDashboardAppointments } from "@/lib/actions/appointment.actions"
+import { getProviders } from "@/lib/actions/provider.actions"
+import { getSession } from "@/lib/auth"
 
-const Home = () => {
+const statsCopy = [
+  { label: "Pending", color: "bg-amber-400/20 text-amber-100", dot: "bg-amber-400" },
+  { label: "Confirmed", color: "bg-emerald-400/20 text-emerald-100", dot: "bg-emerald-400" },
+  { label: "Cancelled", color: "bg-rose-400/20 text-rose-100", dot: "bg-rose-400" },
+  { label: "Rescheduled", color: "bg-blue-400/20 text-blue-100", dot: "bg-blue-400" },
+]
+
+const Home = async () => {
+  const session = await getSession()
+  const { appointments, stats } = await getDashboardAppointments()
+  const providers = await getProviders()
+
+  const latestAppointments = appointments.slice(0, 4)
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#030712] via-[#0c1220] to-[#0f1a2b] text-white">
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-16 lg:px-12">
-        <section className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/80">
-              <span className="h-2 w-2 rounded-full bg-green-400" />
-              Supabase-native mental health scheduling suite
+    <main className="min-h-screen text-white">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 py-14 lg:px-10 lg:py-16">
+        <section className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="space-y-8 rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-emerald-400/10 p-8 shadow-2xl">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.25em] text-white/80">
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              Supabase secure
             </div>
-            <div className="space-y-6">
-              <h1 className="text-4xl font-semibold leading-tight md:text-5xl">
-                Spring2Life: mental health appointments that feel human, organized, and immediate.
-              </h1>
+            <div className="space-y-4">
+              <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">A calm control center for mental health appointments.</h1>
               <p className="text-lg text-white/70">
-                Patients register once, book multiple therapy or psychiatry sessions, and coordinators confirm everything from a modern dashboard.
+                Spring2Life blends Supabase authentication with patient-friendly scheduling, so coordinators, providers, and patients share a single, secure workspace.
               </p>
-              <div className="flex flex-wrap gap-3 text-sm">
+              <div className="flex flex-wrap gap-3">
                 <Link
                   href="/auth"
-                  className="rounded-full bg-green-500 px-5 py-3 font-semibold text-[#0a1020] shadow-xl transition hover:-translate-y-[1px]"
+                  className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-lg transition hover:-translate-y-[1px]"
                 >
-                  Sign in / Sign up
+                  {session ? "Go to workspace" : "Sign in / Create account"}
                 </Link>
                 <Link
-                  href="/providers"
-                  className="rounded-full border border-white/15 px-5 py-3 text-white transition hover:border-green-300"
+                  href="/admin"
+                  className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:border-emerald-300/70 hover:text-emerald-50"
                 >
-                  View provider directory
+                  Review requests
                 </Link>
               </div>
             </div>
-            <div className="grid gap-6 sm:grid-cols-3">
-              {["24/7 booking", "Admin dashboard", "Supabase schemas"].map((label) => (
-                <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center text-sm text-white/70">
-                  {label}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center gap-3 text-sm text-white/70">
+                  <ShieldCheck className="h-5 w-5 text-emerald-300" />
+                  <span>Role-aware access from Supabase</span>
                 </div>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-4 text-sm text-white/70">
-              <span>
-                Need to review requests? Visit the {" "}
-                <Link href="/admin" className="text-green-300 underline">
-                  admin dashboard
-                </Link>
-              </span>
-            </div>
-          </div>
-
-          <div className="relative rounded-[32px] bg-gradient-to-br from-green-500/20 via-green-400/10 to-transparent p-6 shadow-2xl ring-1 ring-white/10">
-            <p className="text-sm uppercase tracking-widest text-white/70">Care team spotlight</p>
-            <div className="mt-6 space-y-4">
-              {CareTeam.map((member) => (
-                <div key={member.name} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <Image src={member.image} alt={member.name} width={48} height={48} className="rounded-full" />
-                  <div>
-                    <p className="font-semibold">{member.name}</p>
-                    <p className="text-sm text-white/70">{member.specialty}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-10 lg:grid-cols-2">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
-            <RegisterForm />
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
-            <AppointmentForm />
-          </div>
-        </section>
-
-        <section className="grid gap-8 rounded-3xl border border-white/5 bg-white/5 p-8">
-          <div className="flex flex-col gap-2">
-            <p className="text-sm uppercase tracking-wider text-green-200">Platform highlights</p>
-            <h2 className="text-3xl font-semibold">Admin-grade visibility for every request</h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {FeatureHighlights.map((feature) => (
-              <div key={feature.title} className="rounded-3xl border border-white/10 bg-[#111b2e]/70 p-6 shadow-lg">
-                <p className="text-lg font-semibold">{feature.title}</p>
-                <p className="mt-2 text-sm text-white/70">{feature.description}</p>
+                <p className="mt-3 text-lg font-semibold text-white">{session ? session.email : "Private workspace"}</p>
+                <p className="text-xs text-white/60">Session cookies and RLS keep patient data contained.</p>
               </div>
-            ))}
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center gap-3 text-sm text-white/70">
+                  <CalendarClock className="h-5 w-5 text-sky-300" />
+                  <span>Live scheduling pipeline</span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-3 text-sm font-semibold">
+                  {statsCopy.map((item) => (
+                    <div key={item.label} className={`flex items-center justify-between rounded-xl px-3 py-2 ${item.color}`}>
+                      <span className={`h-2 w-2 rounded-full ${item.dot}`} />
+                      <span>{stats[item.label.toLowerCase() as keyof typeof stats] || 0}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </section>
 
-        <section className="grid gap-8 rounded-3xl border border-white/5 bg-[#0f1724] p-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-6">
-            <p className="text-sm uppercase tracking-widest text-green-200">How Spring2Life works</p>
-            <h2 className="text-3xl font-semibold">From registration to confirmed care in four steps</h2>
-            <div className="space-y-4">
-              {JourneySteps.map((step) => (
-                <div key={step.label} className="flex gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/20 text-green-200">
-                    {step.label}
-                  </div>
-                  <div>
-                    <p className="font-semibold">{step.title}</p>
-                    <p className="text-sm text-white/70">{step.body}</p>
-                  </div>
+          <div className="grid gap-5">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">Supabase sign-on</p>
+                  <h2 className="text-2xl font-semibold">Authenticate and route every role</h2>
+                </div>
+                <Sparkles className="h-8 w-8 text-emerald-300" />
+              </div>
+              <p className="mt-2 text-sm text-white/70">Use Supabase email, password, or Google to land in the right dashboard instantly.</p>
+              <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/50 p-4">
+                <AuthForm />
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {["Encrypted auth tokens", "Row level security", "Audit-friendly event log", "Google OAuth ready"].map((item) => (
+                <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white/80">
+                  <Lock className="h-4 w-4 text-emerald-300" />
+                  {item}
                 </div>
               ))}
             </div>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm uppercase tracking-wider text-white/70">Live appointment preview</p>
-            <p className="mt-2 text-2xl font-semibold text-white">Admin dashboard cards</p>
-            <p className="mt-2 text-sm text-white/70">
-              The dashboard lists each request with patient context, focus areas, and live status updates.
+        </section>
+
+        <section className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 lg:grid-cols-2">
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-[0.3em] text-emerald-200">Register patients</p>
+            <h3 className="text-3xl font-semibold">Capture the story once</h3>
+            <p className="text-sm text-white/70">
+              Build a patient profile with communication preferences, emergency contacts, and language needs before scheduling.
             </p>
+            <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-4">
+              <RegisterForm />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-[0.3em] text-emerald-200">Schedule care</p>
+            <h3 className="text-3xl font-semibold">Book focused sessions</h3>
+            <p className="text-sm text-white/70">Lock in a provider, specialty, and focus area with real-time Supabase updates.</p>
+            <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-4">
+              <AppointmentForm />
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">Live activity</p>
+                <h3 className="text-3xl font-semibold">Latest appointment requests</h3>
+                <p className="text-sm text-white/70">A quick look at what patients are requesting across the week.</p>
+              </div>
+              <CheckCircle2 className="h-8 w-8 text-emerald-300" />
+            </div>
+
             <div className="mt-6 space-y-4">
-              {CareTeam.slice(0, 2).map((member, index) => (
-                <AppointmentCard
-                  key={`${member.name}-${index}`}
-                  appointment={{
-                    id: `${index}`,
-                    patient_id: `${index}`,
-                    provider: member.name,
-                    specialty: member.specialty,
-                    focus_area: "Anxiety & grounding",
-                    session_type: "Individual Therapy",
-                    status: index % 2 === 0 ? "confirmed" : "pending",
-                    scheduled_at: new Date(Date.now() + index * 7200000).toISOString(),
-                    duration_minutes: 60,
-                    note: "",
-                    cancellation_reason: null,
-                    created_at: new Date().toISOString(),
-                    patients: {
-                      id: `${index}`,
-                      created_at: new Date().toISOString(),
-                      full_name: index === 0 ? "Nandar" : "Ko Aung",
-                      email: index === 0 ? "nandar@spring2life.org" : "aung@spring2life.org",
-                      phone: "+959111111",
-                      birth_date: new Date().toISOString(),
-                      gender: "Female",
-                      support_needs: "",
-                      emergency_contact_name: "Lin",
-                      emergency_contact_phone: "+959888888",
-                      preferred_communication: "SMS text",
-                      care_team_notes: "",
-                    },
-                  }}
-                />
+              {latestAppointments.map((appointment) => (
+                <div key={appointment.id} className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-slate-900/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-lg font-semibold">{appointment.provider}</p>
+                    <p className="text-sm text-white/60">{appointment.specialty} • {appointment.focus_area}</p>
+                    <p className="text-xs text-white/50">{new Date(appointment.scheduled_at).toLocaleString()}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-white/60">{appointment.patients?.full_name}</span>
+                    <span className="rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.12em] text-white">
+                      {appointment.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+
+              {latestAppointments.length === 0 && (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center text-sm text-white/60">
+                  No appointments yet. Book a session to see it appear instantly.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">Provider directory</p>
+                <h3 className="text-3xl font-semibold">Curated care partners</h3>
+                <p className="text-sm text-white/70">Role-secured previews of who is available for the next referral.</p>
+              </div>
+              <CalendarClock className="h-8 w-8 text-sky-300" />
+            </div>
+
+            <div className="mt-6 grid gap-3">
+              {providers.slice(0, 5).map((provider) => (
+                <div key={provider.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/50 p-4">
+                  <div>
+                    <p className="font-semibold">{provider.full_name}</p>
+                    <p className="text-sm text-white/60">{provider.specialty}</p>
+                    <p className="text-xs text-white/50">Modalities: {provider.modalities?.join(", ") || "Conversation"}</p>
+                  </div>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${provider.accepts_new_clients ? "bg-emerald-400/20 text-emerald-100" : "bg-slate-800 text-white/60"}`}>
+                    {provider.accepts_new_clients ? "Accepting" : "Waitlist"}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
