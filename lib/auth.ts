@@ -8,8 +8,8 @@ import { supabaseRequest } from "./supabase"
 
 const PROFILE_TABLE = "profiles"
 
-const setSessionCookies = (access_token: string, refresh_token: string, email?: string, role?: string) => {
-  const cookieStore = cookies()
+const setSessionCookies = async (access_token: string, refresh_token: string, email?: string, role?: string) => {
+  const cookieStore = await cookies()
   cookieStore.set("sb-access-token", access_token, { httpOnly: true, path: "/", secure: true })
   cookieStore.set("sb-refresh-token", refresh_token, { httpOnly: true, path: "/", secure: true })
 
@@ -33,7 +33,7 @@ export const signUpWithEmail = async (payload: { email: string; password: string
   })
 
   const role = await resolveProfileRole(payload.email)
-  setSessionCookies(data.access_token, data.refresh_token, payload.email, role)
+  await setSessionCookies(data.access_token, data.refresh_token, payload.email, role)
   return data
 }
 
@@ -44,18 +44,18 @@ export const signInWithEmail = async (payload: { email: string; password: string
   })
 
   const role = await resolveProfileRole(payload.email)
-  setSessionCookies(data.access_token, data.refresh_token, payload.email, role)
+  await setSessionCookies(data.access_token, data.refresh_token, payload.email, role)
   return data
 }
 
 export const completeOAuth = async ({ access_token, refresh_token }: { access_token: string; refresh_token: string }) => {
   const user = await supabaseAuthRequest<{ user: { email: string } }>({ path: "user", method: "GET", accessToken: access_token })
   const role = await resolveProfileRole(user.user.email)
-  setSessionCookies(access_token, refresh_token, user.user.email, role)
+  await setSessionCookies(access_token, refresh_token, user.user.email, role)
 }
 
 export const signOut = async () => {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   cookieStore.delete("sb-access-token")
   cookieStore.delete("sb-refresh-token")
   cookieStore.delete("sb-role")
@@ -64,7 +64,7 @@ export const signOut = async () => {
 }
 
 export const getSession = async () => {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const accessToken = cookieStore.get("sb-access-token")?.value
   const email = cookieStore.get("sb-email")?.value
   const role = cookieStore.get("sb-role")?.value || "patient"

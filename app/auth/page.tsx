@@ -1,6 +1,8 @@
 import AuthForm from "@/components/forms/AuthForm"
 
-const AuthPage = ({ searchParams }: { searchParams: { redirect?: string } }) => {
+const AuthPage = async ({ searchParams }: { searchParams: Promise<{ redirect?: string }> }) => {
+  const resolvedParams = await searchParams
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#061021] via-[#0b162a] to-[#0f2136] text-white">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 py-16 lg:px-12">
@@ -12,7 +14,7 @@ const AuthPage = ({ searchParams }: { searchParams: { redirect?: string } }) => 
           </p>
         </div>
 
-        <AuthForm key={searchParams.redirect} />
+        <AuthForm key={resolvedParams.redirect} />
 
         <section className="grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 md:grid-cols-3">
           {[
