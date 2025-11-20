@@ -2,7 +2,7 @@ import { getProviders } from "@/lib/actions/provider.actions"
 import { requireSession } from "@/lib/auth"
 
 const ProvidersPage = async () => {
-  requireSession()
+  await requireSession()
   const providers = await getProviders()
 
   return (

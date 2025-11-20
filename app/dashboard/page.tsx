@@ -4,7 +4,7 @@ import { getPatientByEmail } from "@/lib/actions/patient.actions"
 import { requireSession } from "@/lib/auth"
 
 const DashboardPage = async () => {
-  const session = requireSession()
+  const session = await requireSession()
   const email = session?.email || ""
   const patient = email ? await getPatientByEmail(email) : null
   const appointments = email ? await getAppointmentsForUser(email) : []

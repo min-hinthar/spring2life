@@ -72,7 +72,7 @@ export const getSession = () => {
   return accessToken ? { accessToken, email, role } : null
 }
 
-export const requireSession = () => {
+export const requireSession = async () => {
   const session = getSession()
   if (!session) redirect("/auth")
   return session
