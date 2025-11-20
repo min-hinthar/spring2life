@@ -2,8 +2,8 @@ import Link from "next/link"
 
 import { getSession, signOut } from "@/lib/auth"
 
-const NavBar = () => {
-  const session = getSession()
+const NavBar = async () => {
+  const session = await getSession()
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a1020]/80 backdrop-blur">

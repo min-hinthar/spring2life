@@ -63,7 +63,7 @@ export const signOut = async () => {
   redirect("/auth")
 }
 
-export const getSession = () => {
+export const getSession = async () => {
   const cookieStore = cookies()
   const accessToken = cookieStore.get("sb-access-token")?.value
   const email = cookieStore.get("sb-email")?.value
@@ -73,7 +73,7 @@ export const getSession = () => {
 }
 
 export const requireSession = async () => {
-  const session = getSession()
+  const session = await getSession()
   if (!session) redirect("/auth")
   return session
 }
