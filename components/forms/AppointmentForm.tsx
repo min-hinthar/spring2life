@@ -1,62 +1,66 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+import { AppointmentBookingSchema } from "@/lib/validation"
+import { CareTeam, FocusAreas, ProviderSpecialties, SessionTypes } from "@/constants"
 import { Form } from "@/components/ui/form"
 import CustomFormField from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
-import { useState } from "react"
-import { CreateAppointmentSchema } from "@/lib/validation"
-import { FormFieldType } from "./PatientForm"
-import { Doctors } from "@/constants"
+import { FormFieldType } from "./field-types"
 import { SelectItem } from "../ui/select"
-import { createAppointment } from "@/lib/actions/appointment.actions"
-import { useRouter } from "next/navigation"
 
-interface AppointmentFormProps {
-  userId: string
-  patientId: string
-  patientName: string
-}
+const durations = [30, 45, 60, 90]
 
-const AppointmentForm = ({ userId, patientId, patientName }: AppointmentFormProps) => {
-  const router = useRouter()
+const AppointmentForm = () => {
   const [isLoading, setIsLoading] = useState(false)
+  const [lastBooked, setLastBooked] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState("")
 
-  const form = useForm<z.infer<typeof CreateAppointmentSchema>>({
-    resolver: zodResolver(CreateAppointmentSchema),
+  const form = useForm<z.infer<typeof AppointmentBookingSchema>>({
+    resolver: zodResolver(AppointmentBookingSchema),
     defaultValues: {
-      primaryPhysician: "",
-      schedule: new Date(Date.now()),
-      reason: "",
+      patientEmail: "",
+      provider: CareTeam[0].name,
+      specialty: CareTeam[0].specialty,
+      sessionType: SessionTypes[0],
+      focusArea: FocusAreas[0],
+      scheduledAt: new Date(Date.now() + 3600 * 1000),
+      durationMinutes: 60,
       note: "",
     },
   })
 
-  const onSubmit = async (values: z.infer<typeof CreateAppointmentSchema>) => {
+  const onSubmit = async (values: z.infer<typeof AppointmentBookingSchema>) => {
     setIsLoading(true)
-
+    setErrorMessage("")
     try {
-      await createAppointment({
-        userId,
-        patientId,
-        primaryPhysician: values.primaryPhysician,
-        reason: values.reason,
-        schedule: values.schedule,
-        status: "pending",
-        note: values.note,
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
       })
 
-      router.push(`/patients/${userId}/new-appointment?success=true`)
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error?.error || "Unable to create appointment")
+      }
+
+      const appointment = await response.json()
+      setLastBooked(appointment?.scheduled_at ?? null)
       form.reset({
-        primaryPhysician: "",
-        schedule: new Date(Date.now()),
-        reason: "",
+        ...values,
+        scheduledAt: new Date(Date.now() + 3600 * 1000),
         note: "",
       })
     } catch (error) {
       console.error(error)
+      setErrorMessage(error instanceof Error ? error.message : "Unable to create appointment")
     } finally {
       setIsLoading(false)
     }
@@ -64,52 +68,123 @@ const AppointmentForm = ({ userId, patientId, patientName }: AppointmentFormProp
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <section className="space-y-1">
-          <p className="text-dark-700 text-sm uppercase tracking-wide">Schedule for</p>
-          <h2 className="header">{patientName}</h2>
-        </section>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-1">
+          <h3 className="text-xl font-semibold text-white">Appointment booking</h3>
+          <p className="text-sm text-dark-600">
+            Use the email tied to your patient profile. Coordinators can confirm, cancel, or reschedule instantly.
+          </p>
+        </div>
 
         <CustomFormField
-          fieldType={FormFieldType.SELECT}
+          fieldType={FormFieldType.INPUT}
           control={form.control}
-          name="primaryPhysician"
-          label="Preferred Physician"
-          placeholder="Select a Physician"
-        >
-          {Doctors.map((doctor) => (
-            <SelectItem key={doctor.name} value={doctor.name}>
-              {doctor.name}
-            </SelectItem>
-          ))}
-        </CustomFormField>
-
-        <CustomFormField
-          fieldType={FormFieldType.DATE_PICKER}
-          control={form.control}
-          name="schedule"
-          label="Appointment Date"
-          showTimeSelect
-          dateFormat="MMM d, yyyy h:mm aa"
+          name="patientEmail"
+          label="Patient email"
+          placeholder="care@spring2life.org"
+          iconSrc="/assets/icons/email.svg"
+          iconAlt="email"
         />
 
-        <CustomFormField
-          fieldType={FormFieldType.TEXTAREA}
-          control={form.control}
-          name="reason"
-          label="Reason for visit"
-          placeholder="Share what we should prepare for"
-        />
+        <div className="flex flex-col gap-4 md:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.SELECT}
+            control={form.control}
+            name="provider"
+            label="Preferred provider"
+            placeholder="Choose a therapist"
+          >
+            {CareTeam.map((member) => (
+              <SelectItem key={member.name} value={member.name}>
+                {member.name}
+              </SelectItem>
+            ))}
+          </CustomFormField>
+          <CustomFormField
+            fieldType={FormFieldType.SELECT}
+            control={form.control}
+            name="specialty"
+            label="Specialty"
+            placeholder="Select a specialty"
+          >
+            {ProviderSpecialties.map((specialty) => (
+              <SelectItem key={specialty} value={specialty}>
+                {specialty}
+              </SelectItem>
+            ))}
+          </CustomFormField>
+        </div>
+
+        <div className="flex flex-col gap-4 md:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.SELECT}
+            control={form.control}
+            name="sessionType"
+            label="Session type"
+            placeholder="Select a format"
+          >
+            {SessionTypes.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </CustomFormField>
+          <CustomFormField
+            fieldType={FormFieldType.SELECT}
+            control={form.control}
+            name="focusArea"
+            label="Focus area"
+            placeholder="Select a focus"
+          >
+            {FocusAreas.map((focus) => (
+              <SelectItem key={focus} value={focus}>
+                {focus}
+              </SelectItem>
+            ))}
+          </CustomFormField>
+        </div>
+
+        <div className="flex flex-col gap-4 md:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.DATE_PICKER}
+            control={form.control}
+            name="scheduledAt"
+            label="Preferred date"
+            showTimeSelect
+            dateFormat="MMM d, yyyy h:mm aa"
+          />
+          <CustomFormField
+            fieldType={FormFieldType.SELECT}
+            control={form.control}
+            name="durationMinutes"
+            label="Session length"
+            placeholder="Select duration"
+          >
+            {durations.map((duration) => (
+              <SelectItem key={duration} value={duration.toString()}>
+                {duration} minutes
+              </SelectItem>
+            ))}
+          </CustomFormField>
+        </div>
 
         <CustomFormField
           fieldType={FormFieldType.TEXTAREA}
           control={form.control}
           name="note"
           label="Additional notes (optional)"
-          placeholder="Transportation needs, medication reminders, etc."
+          placeholder="List accessibility support, interpreters, or medication updates"
         />
 
-        <SubmitButton isLoading={isLoading}>Book appointment</SubmitButton>
+        {errorMessage && <p className="text-xs text-red-300">{errorMessage}</p>}
+
+        {lastBooked && (
+          <p className="text-xs text-green-300">
+            Requested {new Date(lastBooked).toLocaleString("en-US")}. We will confirm soon!
+          </p>
+        )}
+
+        <SubmitButton isLoading={isLoading}>Request sessions</SubmitButton>
       </form>
     </Form>
   )

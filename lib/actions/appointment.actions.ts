@@ -1,137 +1,109 @@
 "use server"
 
-import { Client, Databases, ID, Query, Models } from "node-appwrite"
-import {
-  API_KEY,
-  APPOINTMENT_COLLECTION_ID,
-  DATABASE_ID,
-  ENDPOINT,
-  PROJECT_ID,
-} from "../appwrite.config"
-import { parseStringify } from "../utils"
-import { getPatientById } from "./patient.actions"
+import { revalidatePath } from "next/cache"
 
-const client = new Client()
-  .setEndpoint(ENDPOINT!)
-  .setProject(PROJECT_ID!)
-  .setKey(API_KEY!)
+import { supabaseRequest } from "../supabase"
+import { AppointmentRecord, DashboardStats } from "@/types/database"
+import { getPatientByEmail } from "./patient.actions"
 
-const databases = new Databases(client)
+const APPOINTMENTS_TABLE = "appointments"
 
-type AppointmentRecord = Models.Document & {
-  patientId?: string
-  patient?: string
-}
+export const bookAppointment = async (payload: AppointmentBookingInput) => {
+  const patient = await getPatientByEmail(payload.patientEmail)
 
-const withPatient = async (appointment: AppointmentRecord | null) => {
-  if (!appointment) return appointment
-
-  const patientId = appointment.patientId || appointment.patient
-  const patient = patientId ? await getPatientById(patientId) : null
-
-  return {
-    ...appointment,
-    patient,
+  if (!patient) {
+    throw new Error("We could not find a patient with that email. Please register first.")
   }
+
+  const [appointment] = await supabaseRequest<AppointmentRecord[]>({
+    method: "POST",
+    path: APPOINTMENTS_TABLE,
+    body: {
+      patient_id: patient.id,
+      provider: payload.provider,
+      specialty: payload.specialty,
+      session_type: payload.sessionType,
+      focus_area: payload.focusArea,
+      scheduled_at: payload.scheduledAt.toISOString(),
+      duration_minutes: payload.durationMinutes,
+      status: "pending",
+      note: payload.note ?? "",
+    },
+  })
+
+  revalidatePath("/admin")
+  return appointment
 }
 
-export const createAppointment = async ({
-  userId,
-  patientId,
-  primaryPhysician,
-  reason,
-  schedule,
-  status,
-  note,
-}: CreateAppointmentParams) => {
-  try {
-    const appointment = await databases.createDocument(
-      DATABASE_ID!,
-      APPOINTMENT_COLLECTION_ID!,
-      ID.unique(),
-      {
-        userId,
-        patientId,
-        primaryPhysician,
-        reason,
-        schedule: schedule instanceof Date ? schedule.toISOString() : schedule,
-        status,
-        note,
-        cancellationReason: "",
-      }
-    )
+export const getDashboardAppointments = async () => {
+  const appointments = await supabaseRequest<AppointmentRecord[]>({
+    path: APPOINTMENTS_TABLE,
+    query: {
+      select: "*,patients(*)",
+      order: "created_at.desc",
+      limit: "25",
+    },
+  })
 
-    const recordWithPatient = await withPatient(appointment)
-    return parseStringify(recordWithPatient)
-  } catch (error) {
-    console.error("Error creating appointment:", error)
-    throw error
-  }
+  const stats: DashboardStats = appointments.reduce(
+    (acc, appointment) => {
+      acc[appointment.status] = (acc[appointment.status as keyof DashboardStats] || 0) + 1
+      return acc
+    },
+    { pending: 0, confirmed: 0, cancelled: 0, rescheduled: 0 }
+  )
+
+  return { appointments, stats }
 }
 
-export const getRecentAppointments = async () => {
-  try {
-    const appointments = await databases.listDocuments(
-      DATABASE_ID!,
-      APPOINTMENT_COLLECTION_ID!,
-      [Query.orderDesc("$createdAt"), Query.limit(25)]
-    )
+export const getAppointmentsForUser = async (email: string) => {
+  const patient = await getPatientByEmail(email)
 
-    const results = await Promise.all(
-      appointments.documents.map((appointment) => withPatient(appointment))
-    )
+  if (!patient) return []
 
-    return parseStringify(results)
-  } catch (error) {
-    console.error("Error fetching appointments:", error)
-  }
+  const appointments = await supabaseRequest<AppointmentRecord[]>({
+    path: APPOINTMENTS_TABLE,
+    query: {
+      select: "*,patients(*)",
+      patient_id: `eq.${patient.id}`,
+      order: "scheduled_at.asc",
+      limit: "20",
+    },
+  })
+
+  return appointments
 }
 
-export const getAppointmentsByUser = async (userId: string) => {
-  try {
-    const appointments = await databases.listDocuments(
-      DATABASE_ID!,
-      APPOINTMENT_COLLECTION_ID!,
-      [Query.equal("userId", [userId]), Query.orderDesc("$createdAt")]
-    )
-
-    const results = await Promise.all(
-      appointments.documents.map((appointment) => withPatient(appointment))
-    )
-
-    return parseStringify(results)
-  } catch (error) {
-    console.error("Error fetching user appointments:", error)
-  }
-}
-
-export const updateAppointment = async ({
+export const updateAppointmentStatus = async ({
   appointmentId,
-  appointment,
-}: Pick<UpdateAppointmentParams, "appointmentId" | "appointment">) => {
-  try {
-    const payload = {
-      status: appointment.status,
-      primaryPhysician: appointment.primaryPhysician,
-      schedule:
-        appointment.schedule instanceof Date
-          ? appointment.schedule.toISOString()
-          : appointment.schedule,
-      note: appointment.note,
-      cancellationReason: appointment.cancellationReason ?? "",
-    }
-
-    const updated = await databases.updateDocument(
-      DATABASE_ID!,
-      APPOINTMENT_COLLECTION_ID!,
-      appointmentId,
-      payload
-    )
-
-    const recordWithPatient = await withPatient(updated)
-    return parseStringify(recordWithPatient)
-  } catch (error) {
-    console.error("Error updating appointment:", error)
-    throw error
+  status,
+  scheduledAt,
+  note,
+  cancellationReason,
+}: UpdateAppointmentInput) => {
+  const payload: Record<string, unknown> = {
+    status,
+    note: note ?? "",
   }
+
+  if (scheduledAt) {
+    payload.scheduled_at = scheduledAt.toISOString()
+  }
+
+  if (status === "cancelled") {
+    payload.cancellation_reason = cancellationReason ?? ""
+  }
+
+  const [appointment] = await supabaseRequest<AppointmentRecord[]>({
+    method: "PATCH",
+    path: APPOINTMENTS_TABLE,
+    query: {
+      id: `eq.${appointmentId}`,
+      select: "*,patients(*)",
+    },
+    body: payload,
+  })
+
+  revalidatePath("/admin")
+  return appointment
 }
